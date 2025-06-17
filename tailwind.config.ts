@@ -90,6 +90,18 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addUtilities }) {
+      addUtilities({
+        '.bg-background': {
+          backgroundColor: 'hsl(var(--background))',
+        },
+        '.text-foreground': {
+          color: 'hsl(var(--foreground))',
+        },
+      })
+    }
+  ],
 };
 export default config;
