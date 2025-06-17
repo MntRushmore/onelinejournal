@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "OneLineJournal",
   description:
-    "One line a day!",
+    "One line a day!!",
 }
 
 export default function RootLayout({
