@@ -4,8 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles, Pen, RefreshCw, Clock } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import { AuthModal } from "@/components/auth-modal"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
+import AnimatedBackground from "@/components/ui/AnimatedBackground"
+
+const AuthModal = dynamic(() => import("@/components/auth-modal").then(mod => mod.AuthModal), { ssr: false })
 
 export default function LandingPage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -25,13 +28,9 @@ export default function LandingPage() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession()
-
+        const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
-          router.push("/dashboard")
-          return
+          router.replace("/dashboard") // use replace instead of push to avoid history mismatch
         }
       } catch (error) {
         console.error("Error checking session:", error)
@@ -41,15 +40,6 @@ export default function LandingPage() {
     }
 
     checkUser()
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        router.push("/dashboard")
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [router])
 
   if (loading) {
@@ -62,12 +52,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#000000] text-white relative overflow-hidden">
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500 opacity-20 blur-[160px] rounded-full animate-[spin_60s_linear_infinite]" style={{ transform: "translateY(calc(var(--scroll) * 1.2))" }} />
-        <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] bg-gradient-to-br from-blue-400 via-purple-600 to-indigo-500 opacity-30 blur-[100px] rounded-full animate-[ping_4s_ease-in-out_infinite]" style={{ transform: "translateY(calc(var(--scroll) * 0.8))" }} />
-        <div className="absolute bottom-0 left-20 w-[500px] h-[500px] bg-gradient-to-bl from-pink-500 to-purple-500 opacity-20 blur-[140px] rounded-full animate-[pulse_10s_ease-in-out_infinite]" style={{ transform: "translateY(calc(var(--scroll) * 0.5))" }} />
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-b from-green-400 via-blue-500 to-purple-600 opacity-25 blur-[120px] rounded-full animate-[bounce_12s_ease-in-out_infinite]" style={{ transform: "translateY(calc(var(--scroll) * 1.5))" }} />
-      </div>
+      <AnimatedBackground />
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-6">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-white to-gray-300 bg-clip-text text-transparent mb-6">
@@ -88,21 +73,27 @@ export default function LandingPage() {
       <div className="relative z-10 py-24 bg-black/40 backdrop-blur-md border-t border-white/10">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-16">How It Works</h2>
-          <div className="grid md:grid-cols-3 gap-12">
-            <div>
-              <Pen className="h-10 w-10 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-xl font-semibold mb-2">Write</h3>
-              <p className="text-gray-400">Capture your day in just one line. Make it meaningful.</p>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="group p-6 rounded-xl border border-white/10 bg-gradient-to-br from-purple-800/20 to-transparent hover:from-purple-600/30 transition-transform transform hover:-translate-y-2 hover:shadow-lg">
+              <Pen className="h-14 w-14 mx-auto mb-4 text-purple-300 group-hover:text-purple-100 transition-colors" />
+              <h3 className="text-2xl font-bold mb-2 group-hover:text-white">Write</h3>
+              <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
+                Capture your day in just one line. Make it meaningful.
+              </p>
             </div>
-            <div>
-              <RefreshCw className="h-10 w-10 mx-auto mb-4 text-blue-400" />
-              <h3 className="text-xl font-semibold mb-2">Reflect</h3>
-              <p className="text-gray-400">Build a habit of mindful daily reflection.</p>
+            <div className="group p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-800/20 to-transparent hover:from-blue-600/30 transition-transform transform hover:-translate-y-2 hover:shadow-lg">
+              <RefreshCw className="h-14 w-14 mx-auto mb-4 text-blue-300 group-hover:text-blue-100 transition-colors" />
+              <h3 className="text-2xl font-bold mb-2 group-hover:text-white">Reflect</h3>
+              <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
+                Build a habit of mindful daily reflection.
+              </p>
             </div>
-            <div>
-              <Clock className="h-10 w-10 mx-auto mb-4 text-pink-400" />
-              <h3 className="text-xl font-semibold mb-2">Remember</h3>
-              <p className="text-gray-400">Scroll back and see your growth over time.</p>
+            <div className="group p-6 rounded-xl border border-white/10 bg-gradient-to-br from-pink-800/20 to-transparent hover:from-pink-600/30 transition-transform transform hover:-translate-y-2 hover:shadow-lg">
+              <Clock className="h-14 w-14 mx-auto mb-4 text-pink-300 group-hover:text-pink-100 transition-colors" />
+              <h3 className="text-2xl font-bold mb-2 group-hover:text-white">Remember</h3>
+              <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
+                Scroll back and see your growth over time.
+              </p>
             </div>
           </div>
           <div className="mt-16">
